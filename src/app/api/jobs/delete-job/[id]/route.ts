@@ -5,7 +5,7 @@ import Jobs from "@/app/models/Jobs";
 import User from "@/app/models/User";
 import mongoose from "mongoose";
 
-export async function PUT(
+export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
 ) {
@@ -56,16 +56,6 @@ export async function PUT(
       );
     }
 
-    const {
-      position,
-      company,
-      location,
-      description,
-      type,
-      level,
-      department,
-    } = await req.json();
-
     // Find and update job
     const job = await Jobs.findById(id);
     if (!job) {
@@ -75,24 +65,16 @@ export async function PUT(
       );
     }
 
-    job.position = position || job.position;
-    job.company = company || job.company;
-    job.location = location || job.location;
-    job.description = description || job.description;
-    job.type = type || job.type;
-    job.level = level || job.level;
-    job.department = department || job.department;
-
-    const updatedJob = await job.save();
+    await job.deleteOne();
 
     return NextResponse.json(
-      { success: true, message: "Job updated successfully", updatedJob },
+      { success: true, message: "Job deleted successfully" },
       { status: 201 }
     );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error updating job" },
+      { success: false, message: "Error deleting job" },
       { status: 500 }
     );
   }
