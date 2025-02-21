@@ -50,11 +50,11 @@ export async function POST(
 
     // Validate the ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return new Response(
-          JSON.stringify({ success: false, message: "Invalid Job ID" }),
-          { status: 400 }
-        );
-      }
+      return new Response(
+        JSON.stringify({ success: false, message: "Invalid Job ID" }),
+        { status: 400 }
+      );
+    }
 
     const {
       position,
@@ -66,39 +66,33 @@ export async function POST(
       department,
     } = await req.json();
 
-    if (
-      !position ||
-      !company ||
-      !location ||
-      !description ||
-      !type ||
-      !level ||
-      !department
-    ) {
-      return NextResponse.json(
-        { success: false, message: "All fields are required" },
-        { status: 400 }
+    // Find and update job
+    const job = await Jobs.findById(id);
+    if (!job) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Job not found" }),
+        { status: 404 }
       );
     }
 
-    const newJob = await Jobs.create({
-      position,
-      company,
-      location,
-      description,
-      type,
-      level,
-      department,
-    });
+    job.position = position || job.position;
+    job.company = company || job.company;
+    job.location = location || job.location;
+    job.description = description || job.description;
+    job.type = type || job.type;
+    job.level = level || job.level;
+    job.department = department || job.department;
+
+    const updatedJob = await job.save();
 
     return NextResponse.json(
-      { success: true, message: "Job added successfully", newJob },
+      { success: true, message: "Job updated successfully", updatedJob },
       { status: 201 }
     );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error adding job" },
+      { success: false, message: "Error updating job" },
       { status: 500 }
     );
   }
