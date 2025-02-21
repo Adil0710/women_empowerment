@@ -34,13 +34,7 @@ export async function GET(req: Request) {
       );
     }
   
-    // Check if the logged-in user is an admin
-    if (loggedInUser.role !== "admin") {
-      return NextResponse.json(
-        { success: false, message: "Access denied" },
-        { status: 403 }
-      );
-    }
+   
   
     // Fetch all users excluding passwords
     const jobs = await Jobs.find();
