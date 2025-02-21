@@ -8,7 +8,7 @@ import User from "@/app/models/User";
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { name, email, password, phone, emergencyContacts } = await req.json();
+    const { name, email, password, phone, emergencyContacts, role } = await req.json();
 
     if (!name || !email || !password || !phone || !emergencyContacts) {
       return NextResponse.json({ success: false, message: "All fields are required" }, { status: 400 });
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       password: hashedPassword,
       phone,
       emergencyContacts,
+      role
     });
 
     return NextResponse.json({ success: true, message: "User registered successfully" , newUser}, { status: 201 });
