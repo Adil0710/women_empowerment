@@ -4,7 +4,7 @@ import { verifyToken } from "@/app/lib/auth";
 import Jobs from "@/app/models/Jobs";
 import User from "@/app/models/User";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
     await dbConnect();
 
@@ -48,7 +48,6 @@ export async function GET(req: Request) {
       location,
       description,
       type,
-      role,
       level,
       department,
     } = await req.json();
@@ -59,7 +58,6 @@ export async function GET(req: Request) {
       !location ||
       !description ||
       !type ||
-      !role ||
       !level ||
       !department
     ) {
@@ -75,7 +73,6 @@ export async function GET(req: Request) {
         location,
         description,
         type,
-        role,
         level,
         department,
     })
