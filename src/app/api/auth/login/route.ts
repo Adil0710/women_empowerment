@@ -12,24 +12,41 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ success: false, message: "Email and password are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Email and password are required" },
+        { status: 400 }
+      );
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ success: false, message: "Invalid email please signup" }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found with this email, please signup",
+        },
+        { status: 401 }
+      );
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: "Invalid password" },
+        { status: 401 }
+      );
     }
 
-    const token = jwt.sign({ id: user._id, email: user.email }, SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id: user._id, email: user.email }, SECRET, {
+      expiresIn: "7d",
+    });
 
     return NextResponse.json({ success: true, token, user }, { status: 200 });
   } catch (error) {
-    console.log(error)
-    return NextResponse.json({ success: false, message: "Error logging in" }, { status: 500 });
+    console.log(error);
+    return NextResponse.json(
+      { success: false, message: "Error logging in" },
+      { status: 500 }
+    );
   }
 }
