@@ -17,12 +17,12 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ success: false, message: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json({ success: false, message: "Invalid email please signup" }, { status: 401 });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ success: false, message: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
     }
 
     const token = jwt.sign({ id: user._id, email: user.email }, SECRET, { expiresIn: "7d" });

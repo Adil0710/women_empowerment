@@ -23,7 +23,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(decoded.id);
     return NextResponse.json({ success: true, user });
   } catch (error) {
     console.log(error);
