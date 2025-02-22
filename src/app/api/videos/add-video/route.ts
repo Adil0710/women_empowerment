@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/dbConnect";
 import { verifyToken } from "@/app/lib/auth";
-
 import User from "@/app/models/User";
-import Article from "@/app/models/Article";
+import Videos from "@/app/models/Videos";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
     await dbConnect();
 
@@ -35,12 +34,35 @@ export async function GET(req: Request) {
       );
     }
 
-    const articles = await Article.find().sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, articles });
+    // Check if the logged-in user is an admin
+    if (loggedInUser.role !== "admin") {
+      return NextResponse.json(
+        { success: false, message: "Access denied" },
+        { status: 403 }
+      );
+    }
+
+    const { link } = await req.json();
+
+    if (!link) {
+      return NextResponse.json(
+        { success: false, message: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
+    const newVideo = await Videos.create({
+      link,
+    });
+
+    return NextResponse.json(
+      { success: true, message: "Video added successfully", newVideo },
+      { status: 201 }
+    );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error fetching articles" },
+      { success: false, message: "Error adding Video" },
       { status: 500 }
     );
   }

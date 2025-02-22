@@ -37,7 +37,7 @@ export async function GET(req: Request) {
    
   
   
-    const jobs = await Jobs.find();
+    const jobs = await Jobs.find().sort({ createdAt: -1 });
     return NextResponse.json({ success: true, jobs });
  } catch (error) {
     console.log(error);

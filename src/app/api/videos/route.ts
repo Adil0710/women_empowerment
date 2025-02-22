@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/dbConnect";
 import { verifyToken } from "@/app/lib/auth";
-
 import User from "@/app/models/User";
-import Article from "@/app/models/Article";
+import Videos from "@/app/models/Videos";
 
 export async function GET(req: Request) {
   try {
@@ -35,12 +34,12 @@ export async function GET(req: Request) {
       );
     }
 
-    const articles = await Article.find().sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, articles });
+    const videos = await Videos.find().sort({ createdAt: -1 });
+    return NextResponse.json({ success: true, videos });
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error fetching articles" },
+      { success: false, message: "Error fetching videos" },
       { status: 500 }
     );
   }

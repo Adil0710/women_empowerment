@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/dbConnect";
-import User from "@/app/models/User";
 import { verifyToken } from "@/app/lib/auth";
+import User from "@/app/models/User";
+import mongoose from "mongoose";
+import Videos from "@/app/models/Videos";
 
-export async function GET(req: Request) {
- try {
+export async function PUT(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
     await dbConnect();
 
     // Get token from request headers
@@ -15,7 +20,7 @@ export async function GET(req: Request) {
         { status: 401 }
       );
     }
-  
+
     // Verify token and extract user info
     const decoded = verifyToken(token);
     if (!decoded || typeof decoded === "string") {
@@ -32,7 +37,7 @@ export async function GET(req: Request) {
         { status: 404 }
       );
     }
-  
+
     // Check if the logged-in user is an admin
     if (loggedInUser.role !== "admin") {
       return NextResponse.json(
@@ -40,15 +45,45 @@ export async function GET(req: Request) {
         { status: 403 }
       );
     }
-  
-    // Fetch all users excluding passwords
-    const users = await User.find().select("-password").sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, users });
- } catch (error) {
+
+    const { id } = params;
+
+    // Validate the ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Invalid video ID" }),
+        { status: 400 }
+      );
+    }
+
+    const { link } = await req.json();
+
+    // Find and update video
+    const video = await Videos.findById(id);
+    if (!video) {
+      return new Response(
+        JSON.stringify({ success: false, message: "video not found" }),
+        { status: 404 }
+      );
+    }
+
+    video.link = link || video.link;
+
+    const updatedVideo = await video.save();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "video updated successfully",
+        updatedVideo,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error fetching users" },
+      { success: false, message: "Error updating video" },
       { status: 500 }
     );
- }
+  }
 }
