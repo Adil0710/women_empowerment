@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/dbConnect";
 import { verifyToken } from "@/app/lib/auth";
-import Jobs from "@/app/models/Jobs";
 import User from "@/app/models/User";
-import mongoose from "mongoose";
+import Article from "@/app/models/Article";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: Request) {
   try {
     await dbConnect();
 
@@ -46,35 +42,35 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const {
+      title,
 
-    // Validate the ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Invalid Job ID" }),
+      description,
+
+      link,
+    } = await req.json();
+
+    if (!title || !description || !link) {
+      return NextResponse.json(
+        { success: false, message: "All fields are required" },
         { status: 400 }
       );
     }
 
-    // Find and delete job
-    const job = await Jobs.findById(id);
-    if (!job) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Job not found" }),
-        { status: 404 }
-      );
-    }
-
-    await job.deleteOne();
+    const newArticle = await Article.create({
+      title,
+      description,
+      link,
+    });
 
     return NextResponse.json(
-      { success: true, message: "Job deleted successfully" },
+      { success: true, message: "Article added successfully", newArticle },
       { status: 201 }
     );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error deleting job" },
+      { success: false, message: "Error adding article" },
       { status: 500 }
     );
   }

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/dbConnect";
 import { verifyToken } from "@/app/lib/auth";
-import Jobs from "@/app/models/Jobs";
+
 import User from "@/app/models/User";
+import Article from "@/app/models/Article";
 
 export async function GET(req: Request) {
  try {
@@ -36,13 +37,12 @@ export async function GET(req: Request) {
   
    
   
-  
-    const jobs = await Jobs.find();
-    return NextResponse.json({ success: true, jobs });
+    const articles= await Article.find();
+    return NextResponse.json({ success: true, articles });
  } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, message: "Error fetching users" },
+      { success: false, message: "Error fetching articles" },
       { status: 500 }
     );
  }
